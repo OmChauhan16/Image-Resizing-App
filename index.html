@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Resizing</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #72b5e1;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgb(222, 217, 217);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+        }
+
+        #imageContainer img {
+            max-width: 100%;
+            /* Set the maximum width for the displayed image */
+            max-height: 300px;
+            /* Set the maximum height for the displayed image */
+            width: auto;
+            height: auto;
+            margin-top: 10px;
+        }
+
+        button,
+        input[type="file"] {
+            margin: 10px 0;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            background-color: #666072;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover,
+        input[type="file"]:hover {
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 20px;
+            }
+
+            button,
+            input[type="file"] {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+
+            #imageContainer img {
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <h1>Image Resizer</h1>
+
+        <form id="upload-form">
+            <input type="file" name="" id="imageInput" accept="image/*">
+        </form>
+        <div id="imageContainer">
+            <img id="uploadedImage" src="#" alt="UploadedImage">
+        </div>
+
+        <button id="resize-btn-youtube">Youtube Thumbnail(1280x720)</button>
+        <button id="resize-btn-ig">Instagram(1080x1350)</button>
+        <button id="resize-btn-fb">Facebook(1200x630)</button>
+        <button id="resize-btn-twitter">Twitter(1200x675)</button>
+
+        <div>
+            <button id="download">Download</button>
+            <a id="downloadLink" style="display:none;">Download Link</a>
+
+        </div>
+    </div>
+
+    <script>
+        //function to display the selected image
+        document.getElementById('imageInput').addEventListener('change', function () {
+            const imageContainer = document.getElementById('imageContainer');
+            const uploadedImage = document.getElementById("uploadedImage");
+            const file = this.files[0];
+            const download = document.getElementById("download");
+
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    uploadedImage.src = e.target.result;
+                    imageContainer.style.display = 'block';
+                }
+
+                reader.readAsDataURL(file);
+            }
+            else {
+                imageContainer.style.display = 'none';
+            }
+        });
+
+
+        //function to resize the image to specific dimensions when a button is clicked
+        document.getElementById('resize-btn-ig').addEventListener('click', function () {
+            resizeImage(1080, 1350)
+        });
+
+        document.getElementById('resize-btn-fb').addEventListener('click', function () {
+            resizeImage(1200, 630)
+        });
+
+        document.getElementById('resize-btn-twitter').addEventListener('click', function () {
+            resizeImage(1200, 675)
+        });
+
+        document.getElementById('resize-btn-youtube').addEventListener('click', function () {
+            resizeImage(1280, 720)
+        });
+
+
+        function resizeImage(width, height) {
+            const uploadedImage = document.getElementById('uploadedImage');
+
+            uploadedImage.width = width;
+            uploadedImage.height = height;
+
+            if (uploadedImage.src && uploadedImage.src !== '#') {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const img = new Image();
+                img.src = uploadedImage.src;
+
+                img.onload = function () {
+                    // Draw the image with high quality
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const resizedImageUrl = canvas.toDataURL('image/jpeg', 1.0); // Setting quality to 1.0 (max quality)
+                    uploadedImage.src = resizedImageUrl;
+
+                    // Enable the download button
+                    document.getElementById('download').style.display = 'block';
+
+                    // Set the download link
+                    const downloadLink = document.getElementById('downloadLink');
+                    downloadLink.href = resizedImageUrl;
+                    downloadLink.download = 'resized-image.jpg';
+                };
+            } else {
+                alert('Please upload an image first.');
+            }
+
+        }
+        // Function to handle the download
+        document.getElementById('download').addEventListener('click', function () {
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.click();
+        });
+    </script>
+</body>
+
+</html>
